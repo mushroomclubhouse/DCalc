@@ -1,1 +1,1424 @@
-https://mushroomclubhouse.com/blogs/calculators/tolerance-calculator
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mushroom Calculator</title>
+<style>
+:root {
+  --primary: #AD653C;
+  --secondary: #FFF1E8;
+  --border: #D0D0D0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #FCF5D8;
+  padding: 0px;
+  margin: 0;
+}
+
+.pill-wrapper {
+  max-width: 550px;
+  margin: 5px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.mushroom-pill {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 100px;
+  border: 2px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.pill-label {
+  background: var(--secondary);
+  color: #000;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  white-space: nowrap;
+}
+
+.pill-value-wrap {
+  position: relative;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px 8px;
+  gap: 8px;
+}
+
+.pill-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  font-size: clamp(12px, 1.5vw, 22px);
+  white-space: nowrap;
+  padding: 0 10px;
+}
+
+.pill-arrow {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  opacity: 0.85;
+}
+
+.dropdown {
+  margin-top: 8px;
+  background: #E5F3FD;
+  border-radius: 14px;
+  border: 2px solid #FFCC55;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  display: none;
+  max-width: 100%;
+}
+
+.dropdown.open { display: block; }
+
+.dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.dropdown-item:last-child { margin-bottom: 0; }
+.dropdown-item:hover { background: #FFF1E8; }
+
+.dropdown-item .species {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.dropdown-item .strain {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.1;
+}
+
+.dropdown-item .potency {
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+  opacity: 0.65;
+  line-height: 1.1;
+}
+
+.wet-dry-btn {
+  padding: 6px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--primary);
+  background: #fff1e7;
+  cursor: pointer;
+}
+
+.wet-dry-btn.active {
+  background: var(--primary);
+  color: var(--secondary);
+}
+.effects-card-title {
+  font-size: clamp(16px, 2.2vw, 20px);
+}
+
+.effects-card-text {
+  font-size: clamp(12px, 1.6vw, 14px);
+}
+.more-btn {
+  position: absolute;
+  top: 285%;
+  right: 0%;
+  transform: translateY(-50%);
+  background: rgba(252,191,212,1);
+  color: #000;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.more-btn:hover { background: rgba(255,255,255,0.3); }
+
+#disclaimerModal div > div:first-child::-webkit-scrollbar { width: 8px; }
+#disclaimerModal div > div:first-child::-webkit-scrollbar-track { background: #FFF1E8; border-radius: 8px; }
+#disclaimerModal div > div:first-child::-webkit-scrollbar-thumb { background-color: var(--primary); border-radius: 8px; border: 2px solid #FFF1E8; }
+#disclaimerModal div > div:first-child { scrollbar-width: thin; scrollbar-color: var(--primary) #FFF1E8; }
+input:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(173,101,60,0.5); outline: none; }
+#lysergModalContent {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--secondary);
+}
+
+#lysergModalContent::-webkit-scrollbar {
+  width: 8px;
+}
+#lysergModalContent::-webkit-scrollbar-track {
+  background: var(--secondary);
+  border-radius: 8px;
+}
+#lysergModalContent::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 8px;
+  border: 2px solid var(--secondary);
+}
+</style>
+</head>
+<body>
+    <!-----Bipolar/Schitz warn----->
+<div id="mentalHealthWarning" style="
+  max-width: 550px;
+  margin: 0 auto 8px auto;
+  padding: 6px 10px;
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+  color: #000;
+  background: rgba(255, 241, 232, 0.75);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+">
+  <strong>Warning:</strong>
+  Psychedelics may trigger mania or psychosis in people with bipolar disorder, schizophrenia, or similar mental health conditions.
+</div>
+<!-- TOLERANCE CALCULATOR -->
+<div id="calculatorWrapper" style="
+  position: relative;
+  width: 100%;
+  max-width: 550px;
+  aspect-ratio: 1019/1464;
+  margin: 0px auto;
+  background: url('https://cdn.shopify.com/s/files/1/0603/6321/1009/files/Tolerance_Factor_20260112_174530_0000.png?v=1768258277') no-repeat center/contain;
+  border-radius: 24px;
+  overflow: hidden;
+">
+  <div style="position: absolute; top: 1.75%; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10;">
+    <button class="mode-btn" data-mode="mushrooms" style="padding: 6px 12px; font-size: 14px; border: 1px solid var(--primary); background: var(--primary); color: var(--secondary); border-radius: 6px; cursor: pointer;">Mushrooms</button>
+    <button class="mode-btn" data-mode="lsd" style="padding: 6px 12px; font-size: 14px; border: 1px solid var(--primary); background: var(--secondary); color: var(--primary); border-radius: 6px; cursor: pointer;">LSD</button>
+  </div>
+
+  <input id="lastDose" type="text" placeholder="0g" style="position: absolute; top: 12.2%; left: 24.2%; width: 50%; height: 9%; border: none; border-radius: 18px; padding: 0 12px; font-size: 18px; box-sizing: border-box; background: transparent; text-align: center; color: #000;">
+  <input id="daysSince" type="number" placeholder="14" style="position: absolute; top: 29.6%; left: 24.2%; width: 50%; height: 9%; border: none; border-radius: 18px; padding: 0 12px; font-size: 18px; box-sizing: border-box; background: transparent; text-align: center; color: #000;">
+  <input id="desiredDose" type="text" placeholder="0g" style="position: absolute; top: 46.9%; left: 24.2%; width: 50%; height: 9%; border: none; border-radius: 18px; padding: 0 12px; font-size: 18px; box-sizing: border-box; background: transparent; text-align: center; color: #000;">
+
+  <div id="tolFactor" style="position: absolute; top: 67.5%; left: 18.7%; width: 28%; height: 8%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600;"></div>
+  <div id="doseChange" style="position: absolute; top: 78%; left: 19%; width: 28%; height: 8%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;"></div>
+
+  <!-- Adjusted Dose Box -->
+  <div id="adjustedDose" style="position: absolute; top: 67%; left: 45%; width: 46%; height: 19%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; z-index: 5;"></div>
+
+  <!-- HARM POPUP (OVERLAYING adjustedDose) -->
+  <div id="harmPopup" style="
+    position: absolute;
+    top: 63%;
+    left: 45%;
+    width: 43%;
+    height: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(173,102,60,0.95);
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.1;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    z-index: 20;
+  ">
+    <div style="display:flex; justify-content:center; align-items:flex-start; gap:10px;">
+      <div style="flex: 1;">
+        <strong>Harm Reduction:</strong> Frequent dosing increases psychological risk and can become an escapist pattern. Repeated use may contribute to HPPD. Consider taking a break.
+      </div>
+      <button id="closeHarmPopup" style="
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      ">✕</button>
+    </div>
+  </div>
+
+  <button id="disclaimerBtn" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); padding: 6px 12px; font-size: 11px; border: 1px solid var(--primary) !important; background: var(--secondary) !important; color: black !important; border-radius: 6px; cursor: pointer; z-index: 10;">Disclaimer</button>
+
+  <div id="disclaimerModal" style="position: absolute; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 20; padding: 10px;">
+    <div style="background: var(--secondary); border: 2px solid var(--primary); border-radius: 16px; width: 90%; max-width: 90%; max-height: 90%; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden;">
+      <div style="padding: 12px 16px; font-size: 13px; line-height: 1.4; color: #000; overflow-y: auto; flex: 1;">
+        <strong><em>Educational Disclaimer</em></strong><br><br>
+        This calculator is for educational and informational purposes only and is not intended
+        to provide dosing recommendations. Individual response, mushroom potency, preparation
+        method, and physiology vary widely.<br><br>
+        The tolerance model is based on peer-reviewed research showing that tolerance to classic
+        psychedelics is driven by rapid desensitization and recovery of serotonin 5-HT2A receptors,
+        which follows a non-linear (exponential) recovery pattern.<br><br>
+        <strong>Scientific sources:</strong><br>
+        • <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4642895/" target="_blank" style="color: var(--primary); font-weight: 600;">Pharmacology of Psychedelics — Nichols et al.</a><br>
+        • <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC35900876/" target="_blank" style="color: var(--primary); font-weight: 600;">Serotonergic Hallucinogens — Halberstadt</a><br>
+        • <a href="https://pubmed.ncbi.nlm.nih.gov/33404405/" target="_blank" style="color: var(--primary); font-weight: 600;">Acute Tolerance to LSD in Humans — Holze et al. 2021</a><br>
+        • <a href="https://en.wikipedia.org/wiki/Psychedelic_drug#Tolerance" target="_blank" style="color: var(--primary); font-weight: 600;">Psychedelic Drug Tolerance (Literature Summary)</a><br><br>
+        No modern controlled human studies map exact dose-to-day tolerance recovery.
+        This model reflects the best available biological evidence and is not medical advice.<br><br>
+      </div>
+      <div style="text-align: center; padding: 8px 0; border-top: 1px solid var(--primary);">
+        <button id="closeDisclaimer" style="padding: 6px 16px; border-radius: 8px; border: 1px solid var(--primary); background: var(--secondary); font-weight: bold; cursor: pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MUSHROOM TYPE SELECTOR -->
+<div class="pill-wrapper" id="mushroomTypeSelector">
+  <div style="width: 100%; max-width: 550px;">
+    <div class="mushroom-pill" id="pill">
+      <div class="pill-label">Select Species</div>
+      <div class="pill-value-wrap">
+        <div class="pill-text" id="pillValue">
+          <span>Psilocybe</span>
+          <span>cubensis</span>
+        </div>
+        <div class="pill-arrow">▾</div>
+      </div>
+    </div>
+    <div id="wetDryToggleWrapper" style="text-align: center; margin-top: 8px;">
+      <label style="font-size: 12px; font-weight: 600; margin-right: 8px;">Form:</label>
+      <button id="btnDry" class="wet-dry-btn active">Dry</button>
+      <button id="btnWet" class="wet-dry-btn">Wet</button>
+    </div>
+    <div class="dropdown" id="dropdown"></div>
+  </div>
+</div>
+
+<!-- LYSERGAMIDE SELECTOR -->
+<div class="pill-wrapper" id="lysergamideSelector" style="display: none;">
+  <div style="width: 100%; max-width: 550px;">
+    <div class="mushroom-pill" id="lysergamidePill">
+      <div class="pill-label">Lysergamides</div>
+      <div class="pill-value-wrap">
+        <div class="pill-text" id="lysergamideValue">
+          <span>LSD</span>
+          <span>Baseline</span>
+        </div>
+        <div class="pill-arrow">▾</div>
+      </div>
+    </div>
+    <div class="dropdown" id="lysergamideDropdown"></div>
+  </div>
+</div>
+
+ <!-- LYSLERGAMIDE MODAL -->
+<div id="lysergModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 999; padding: 10px;">
+  <div style="background: #FFF1E8; border: 2px solid #AD653C; border-radius: 16px; width: 98%; max-width: 640px; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden;">
+    
+    <div style="padding: 16px; font-size: 18px; font-weight: 700; color: #000; text-align: center;" id="lysergModalTitle"></div>
+    
+    <!-- SCROLLABLE CONTENT -->
+    <div id="lysergModalContent" style="padding: 0 16px 16px; overflow-y: auto; max-height: 70vh; box-sizing: border-box; font-size: 12px; line-height: 1.4;">
+      <!-- content fills here -->
+    </div>
+
+    <div style="text-align: center; padding: 10px 0; border-top: 1px solid #AD653C;">
+      <button id="closeLysergModal" style="padding: 8px 16px; border-radius: 12px; border: 2px solid #AD653C; background: #FFF1E8; color: #000; font-weight: 700; cursor: pointer;">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- EFFECTS CALCULATOR -->
+<div id="effectsCalculatorWrapper" style="
+  position: relative;
+  width: 100%;
+  max-width: 550px;
+  aspect-ratio: 1019/692;
+  margin: 5px auto;
+  background: url('https://cdn.shopify.com/s/files/1/0603/6321/1009/files/Copy_of_Copy_of_Tolerance_Factor_20260113_062915_0000_2.png?v=1768303957') no-repeat center/contain;
+  border-radius: 24px;
+  overflow: hidden;
+">
+  <div id="potency" style="font-weight: 600; position: absolute; top: 22%; left: 32%; width: 35%; height: 25px; border: 2px solid #A6D0DD; border-radius: 18px; padding: 0 12px; font-size: 12px; text-align: center; background: #FFF0E7; color: #000; line-height: 20px; box-sizing: border-box;">
+    Potency Range
+  </div>
+  <input id="gramsInput" type="text" placeholder="0g" style="position: absolute; top: 87.5%; left: 37%; width: 25%; height: 28px; border: 2px solid #A1CBCC; border-radius: 18px; padding: 0 12px; font-size: 18px; text-align: center; background: #fff1e7; color: #000; outline: none;">
+  <div id="doseOutputs" style="position: absolute; top: 34%; left: 7%; width: 85%; display: flex; justify-content: space-between; gap: 20px;"></div>
+</div>
+
+<div id="potencyToggleWrapper" style="max-width: 550px; margin: 10px auto 0; text-align: center;">
+  <button id="potencyToggle" style="padding: 8px 18px; border-radius: 18px; border: 2px solid var(--primary); background: #fff1e7; font-weight: 600; cursor: pointer; transition: all .2s ease;">Standard potency range</button>
+  <div style="font-size: 11px; font-style: italic; color: #000; margin-top: 4px; line-height: 1;">Toggle to change potency range</div>
+</div>
+
+<div id="effectsPanel" style="
+  width: 100%;
+  max-width: 550px;
+  margin: 12px auto 0;
+  background: #fff1e7;
+  border: 2px solid #000;
+  border-radius: 20px;
+  padding: 16px;
+  box-sizing: border-box;
+  text-align: center;
+  display: none;
+">
+  <div id="effectsTitle" style="font-size: 16px; font-weight: 600; margin-bottom: 8px;"></div>
+  <div id="effectsText" style="font-size: 13px; line-height: 1.3; text-align: center;"></div>
+  <button id="closePanel" style="margin-top: 10px; padding: 6px 16px; border-radius: 14px; border: 1px solid #000; background: transparent; font-weight: 600; cursor: pointer;">Close</button>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+  const harmPopup = document.getElementById('harmPopup');
+  const closeHarmPopup = document.getElementById('closeHarmPopup');
+
+  let harmClosed = false;
+
+  const showHarmPopup = () => {
+    if (harmClosed) return;
+    harmPopup.style.opacity = '1';
+    harmPopup.style.pointerEvents = 'auto';
+  };
+
+  const hideHarmPopup = () => {
+    harmPopup.style.opacity = '0';
+    harmPopup.style.pointerEvents = 'none';
+  };
+
+  closeHarmPopup.addEventListener('click', () => {
+    harmClosed = true;
+    hideHarmPopup();
+  });
+
+  // Expose functions globally so recalcTolerance can call them
+  window.showHarmPopup = showHarmPopup;
+  window.hideHarmPopup = hideHarmPopup;
+});
+
+// ============================
+// DATA for DropDown
+// ============================
+const mushroomSpecies = [
+  { value: "Panaeolus cyanescens", strain: "Blue Meanies", potencyMin: 1.2, potencyMax: 3.7 },
+  { value: "Psilocybe zapotecorum", strain: "Rare Mexican strain", potencyMin: 1.6, potencyMax: 2.2 },
+  { value: "Psilocybe azurescens", strain: "Flying saucers", potencyMin: 1.1, potencyMax: 1.8 },
+  { value: "Psilocybe cyanescens", strain: "Wavy caps", potencyMin: 0.85, potencyMax: 1.4 },
+  { value: "Psilocybe cubensis", strain: "Golden Teacher · B+ · Penis Envy", potencyMin: 0.6, potencyMax: 1.3 },
+  { value: "Psilocybe semilanceata", strain: "Liberty caps", potencyMin: 0.8, potencyMax: 1.3 },
+  { value: "Psilocybe natalensis", strain: "Natal Super Strength", potencyMin: 0.8, potencyMax: 1.3 },
+  { value: "Psilocybe ochraceocentrata", strain: "Ochras (formerly natalensis)", potencyMin: 0.7, potencyMax: 1.5 },
+  { value: "Psilocybe subaeruginosa", strain: "Australian wood-lover", potencyMin: 0.7, potencyMax: 1.2 },
+  { value: "Psilocybe stuntzii", strain: "Blue ringer", potencyMin: 0.3, potencyMax: 1.0 },
+  { value: "Psilocybe mexicana", strain: "Truffles (sclerotia)", potencyMin: 0.25, potencyMax: 0.6 },
+  { value: "Psilocybe tampanensis", strain: "Philosopher's Stone · truffles", potencyMin: 0.2, potencyMax: 0.5 }
+];
+
+const lysergamides = [
+  { name: "LSD", multiplier: 1.00, PubChemCID: "5761", desc: "Baseline reference compound", strain: "Baseline", unit: "ug" },
+  { name: "1P-LSD", multiplier: 0.85, PubChemCID: "119025985", desc: "Prodrug metabolized into LSD", strain: "Prodrug", unit: "ug" },
+  { name: "1cP-LSD", multiplier: 0.90, PubChemCID: "155884675", desc: "Cyclopropionyl prodrug", strain: "Prodrug", unit: "ug" },
+  { name: "1V-LSD", multiplier: 0.90, PubChemCID: "162368540", desc: "Valeryl prodrug of LSD", strain: "Prodrug", unit: "ug" },
+  { name: "AL-LAD", multiplier: 1.20, PubChemCID: "87806640", desc: "More visual, less headspace", strain: "Lysergamide analog", unit: "ug" },
+  { name: "ETH-LAD", multiplier: 1.10, PubChemCID: "87806642", desc: "Stronger visuals, shorter duration", strain: "Lysergamide analog", unit: "ug" },
+  { name: "LSZ", multiplier: 0.80, PubChemCID: "87806641", desc: "Shorter acting, less intense", strain: "Structural analog", unit: "ug" },
+  { name: "LSA", multiplier: 0.20, PubChemCID: "443884", desc: "Naturally occurring ergoline", strain: "Morning Glory / HBWR", unit: "mg" }
+];
+
+const levels = [
+  { level: 1, name: 'Microdose', min: 0, max: 5, gramRange: '0.05–0.5 g', effects: { Mental: 'Subtle alertness, no noticeable cognitive change.', Visual: 'None.', Function: 'Normal daily function.' } },
+  { level: 2, name: 'Low', min: 6, max: 15, gramRange: '0.6–1.5 g', effects: { Mental: 'Light mood lift, increased openness.', Visual: 'Minor patterning or color enhancement.', Function: 'Slightly enhanced creativity or focus.' } },
+  { level: 3, name: 'Moderate', min: 16, max: 30, gramRange: '1.6–3.0 g', effects: { Mental: 'Clear psychedelic thought, introspection.', Visual: 'Patterning, mild hallucinations.', Function: 'Altered perception, moderate cognitive shifts.' } },
+  { level: 4, name: 'High', min: 31, max: 45, gramRange: '3.1–4.5 g', effects: { Mental: 'Strong introspection and emotional impact.', Visual: 'Vivid visual distortions and hallucinations.', Function: 'Impaired normal function, full psychedelic immersion.' } },
+  { level: 5, name: 'Heroic', min: 46, max: 100, gramRange: '4.6 g+', effects: { Mental: 'Profound ego dissolution and transformative insights.', Visual: 'Immersive, complex hallucinations.', Function: 'Limited motor or cognitive control.' } }
+];
+
+const estimateColors = { Low: '#FFCC55', Average: '#FDBFD5', High: '#FFA030' };
+
+const lysergamideEffects = {
+  "LSD": [
+    { level: "Sub-threshold", mental: "No reliable psychoactive effects.", visual: "None.", function: "Normal baseline." },
+    { level: "Threshold", mental: "Subtle cognitive stimulation, slight mood elevation.", visual: "Mild brightness enhancement.", function: "Fully functional." },
+    { level: "Low", mental: "Clear psychedelic headspace, increased introspection.", visual: "Color enhancement, gentle motion effects.", function: "Functional but altered." },
+    { level: "Moderate", mental: "Strong associative thinking, emotional amplification.", visual: "Geometric patterns, mild hallucinations.", function: "Impaired performance." },
+    { level: "High", mental: "Ego softening, profound introspection.", visual: "Complex geometry, strong motion distortion.", function: "Poor control." },
+    { level: "Very High", mental: "Ego dissolution possible, overwhelming cognition.", visual: "Immersive visuals, synesthesia.", function: "Severely impaired." },
+    { level: "Near Heroic", mental: "Loss of self narrative, intense insights.", visual: "Deep visual layering.", function: "Extremely impaired." },
+    { level: "Heroic", mental: "Complete ego dissolution, non-dual states.", visual: "Full immersion, hallucinations.", function: "Minimal function." }
+  ],
+  "1P-LSD": [
+    { level: "Sub-threshold", mental: "Minimal effects, slightly lighter than LSD.", visual: "None.", function: "Normal." },
+    { level: "Threshold", mental: "Light mood shift, mild sensory sharpening.", visual: "Slight brightness.", function: "Fully functional." },
+    { level: "Low", mental: "Gentle psychedelic headspace, reflective.", visual: "Soft patterning.", function: "Functional." },
+    { level: "Moderate", mental: "Clear visuals and introspection.", visual: "Geometric patterns, mild hallucinations.", function: "Impaired but manageable." },
+    { level: "High", mental: "Strong introspection, emotional depth.", visual: "Vivid visuals, strong distortion.", function: "Hard to function." },
+    { level: "Very High", mental: "Ego softening, intense thought loops.", visual: "Immersive visuals, synesthesia.", function: "Very impaired." },
+    { level: "Near Heroic", mental: "Deep dissociation, intense insight.", visual: "Full visual immersion.", function: "Severely impaired." },
+    { level: "Heroic", mental: "Full ego dissolution, extreme states.", visual: "Complete hallucinations.", function: "Minimal function." }
+  ],
+  "1cP-LSD": [
+    { level: "Sub-threshold", mental: "Slightly lighter than LSD, subtle effects.", visual: "None.", function: "Normal." },
+    { level: "Threshold", mental: "Light mood lift, mild stimulation.", visual: "Mild color enhancement.", function: "Functional." },
+    { level: "Low", mental: "Soft psychedelic headspace, introspective.", visual: "Gentle patterning.", function: "Functional." },
+    { level: "Moderate", mental: "Clear psychedelic effects, emotional clarity.", visual: "Geometric visuals.", function: "Impaired." },
+    { level: "High", mental: "Strong visuals and mental depth.", visual: "Complex geometry.", function: "Hard to function." },
+    { level: "Very High", mental: "Ego softening, intense cognition.", visual: "Immersive visuals.", function: "Very impaired." },
+    { level: "Near Heroic", mental: "Deep dissociation.", visual: "Full visual immersion.", function: "Severely impaired." },
+    { level: "Heroic", mental: "Extreme ego dissolution.", visual: "Full hallucinations.", function: "Minimal function." }
+  ],
+  "AL-LAD": [
+    { level: "Sub-threshold", mental: "Slight mood change.", visual: "None.", function: "Normal." },
+    { level: "Threshold", mental: "Mild euphoria, creative thinking.", visual: "Slight shimmer.", function: "Functional." },
+    { level: "Low", mental: "Strong visual focus, less headspace than LSD.", visual: "Color & patterning.", function: "Functional." },
+    { level: "Moderate", mental: "Light headspace, strong visuals.", visual: "Geometry, breathing surfaces.", function: "Impaired." },
+    { level: "High", mental: "Strong headspace, rapid cognition.", visual: "Strong visuals, vivid colors.", function: "Hard to function." },
+    { level: "Very High", mental: "High mental intensity, thought loops.", visual: "Immersive visuals.", function: "Very impaired." },
+    { level: "Near Heroic", mental: "Strong dissociation.", visual: "Full visual immersion.", function: "Severely impaired." },
+    { level: "Heroic", mental: "Extreme ego loss, intense cognition.", visual: "Complete hallucinations.", function: "Minimal function." }
+  ],
+  "LSZ": [
+    { level: "Sub-threshold", mental: "Light calm, almost no effect.", visual: "None.", function: "Normal." },
+    { level: "Threshold", mental: "Mild relaxation, gentle mood lift.", visual: "Very mild color shift.", function: "Functional." },
+    { level: "Low", mental: "Light psychedelic headspace.", visual: "Soft patterns.", function: "Functional." },
+    { level: "Moderate", mental: "Mild headspace, relaxed introspection.", visual: "Moderate visuals.", function: "Impaired." },
+    { level: "High", mental: "Clear visuals, gentle headspace.", visual: "Strong patterns.", function: "Hard to function." },
+    { level: "Very High", mental: "Heavy visuals, mild anxiety possible.", visual: "Immersive visuals.", function: "Very impaired." },
+    { level: "Near Heroic", mental: "Strong dissociation.", visual: "Full visuals.", function: "Severely impaired." },
+    { level: "Heroic", mental: "Extreme dissociation, minimal control.", visual: "Full hallucinations.", function: "Minimal function." }
+  ],
+  "LSA": [
+    { level: "Sub-threshold", mental: "Almost no noticeable effects.", visual: "None.", function: "Normal." },
+    { level: "Threshold", mental: "Very subtle mood or perception changes.", visual: "Minimal.", function: "Fully functional." },
+    { level: "Low", mental: "Mild psychedelic effects; light introspection.", visual: "Soft patterns, slight color shifts.", function: "Mostly functional." },
+    { level: "Moderate", mental: "Clear psychedelic headspace, increased introspection.", visual: "Noticeable visuals, geometric patterns.", function: "Impaired but manageable." },
+    { level: "High", mental: "Strong psychedelic effects, heavy thought loops.", visual: "Strong visuals, shifting textures.", function: "Difficult to function." },
+    { level: "Very High", mental: "Intense body load, nausea possible, strong dissociation.", visual: "Strong visuals, hallucinations possible.", function: "Very impaired." },
+    { level: "Dangerous", mental: "Severe confusion, high risk of panic or bad reaction.", visual: "Overwhelming visuals, loss of grounding.", function: "Not safe to function." },
+    { level: "Heroic", mental: "Extreme disorientation, potential loss of reality testing.", visual: "Full hallucinations, intense dissociation.", function: "Extremely unsafe." }
+  ]
+};
+
+// Copy other lysergamide effects with same pattern
+["1P-LSD", "1cP-LSD", "AL-LAD", "ETH-LAD", "LSZ"].forEach(name => {
+  if (!lysergamideEffects[name]) lysergamideEffects[name] = lysergamideEffects.LSD;
+});
+// ============================
+// LYSERGAMIDE INFO (LEARN MORE DATA)
+// ============================
+const lysergamideInfo = {
+  "LSD": {
+    pubchem: `<a href="https://pubchem.ncbi.nlm.nih.gov/compound/5761" target="_blank">PubChem CID: 5761</a>`,
+    class: "Lysergamide (classic psychedelic)",
+    dose: "50–200 µg (common), 200–400 µg (strong), 400+ µg (very strong)",
+    effects: [
+      "Visual enhancement / patterns",
+      "Increased empathy and introspection",
+      "Time distortion",
+      "Synesthesia (sometimes)",
+      "Ego dissolution at high doses"
+    ],
+    interactions: [
+      "MAOIs: dangerous — can intensify effects and risk serotonin syndrome",
+      "SSRIs/SNRIs: can blunt or cancel effects",
+      "Stimulants: increases anxiety + cardiovascular stress",
+      "Alcohol: increases nausea and lowers judgment",
+      "Cannabis: can increase paranoia in higher doses",
+      "Benzodiazepines: can reduce or stop effects (used as a trip-stop)",
+      "Antipsychotics: can cancel effects",
+      "Opioids: sedation + risk of overdose"
+    ],
+    safety: [
+      "Avoid mixing with MAOIs or SSRIs.",
+      "Use in a safe environment with a trusted sitter if high dose."
+    ],
+    warnings: [
+      "Can cause vasoconstriction (narrowing of blood vessels) which can increase blood pressure and strain the cardiovascular system.",
+      "People with heart conditions, high blood pressure, or circulatory issues may be at higher risk.",
+      "May worsen anxiety, panic disorders, or psychosis in vulnerable individuals.",
+      "Avoid mixing with stimulants or substances that raise heart rate."
+    ],
+    sources: [
+      { label: "PsychonautWiki — LSD", url: "https://m.psychonautwiki.org/wiki/LSD" },
+      { label: "Erowid — LSD experiences", url: "https://erowid.org/experiences/subs/exp_LSD.shtml" },
+      { label: "PubMed — LSD 5-HT2A receptor study", url: "https://pubmed.ncbi.nlm.nih.gov/38102107/" }
+    ]
+  },
+
+  "1P-LSD": {
+    pubchem: `<a href="https://pubchem.ncbi.nlm.nih.gov/compound/119025985" target="_blank">PubChem CID: 119025985</a>`,
+    class: "Prodrug to LSD",
+    dose: "50–200 µg (common), 200–400 µg (strong)",
+    effects: [
+      "Very similar to LSD",
+      "Slightly longer onset in some users",
+      "Similar visuals and mental effects",
+      "Often described as “smoother” than LSD"
+    ],
+    interactions: [
+      "MAOIs: dangerous — can intensify effects and risk serotonin syndrome",
+      "SSRIs/SNRIs: can blunt or cancel effects",
+      "Stimulants: increases anxiety + cardiovascular stress",
+      "Alcohol: increases nausea and lowers judgment",
+      "Cannabis: can increase paranoia in higher doses",
+      "Benzodiazepines: can reduce or stop effects (used as a trip-stop)",
+      "Antipsychotics: can cancel effects",
+      "Opioids: sedation + risk of overdose"
+    ],
+    safety: [
+      "Metabolizes into LSD in the body.",
+      "Avoid mixing with MAOIs and SSRIs."
+    ],
+    warnings: [
+      "Same cardiovascular and vasoconstrictive risks as LSD.",
+      "May worsen anxiety or panic in vulnerable individuals.",
+      "Limited clinical data — treat as LSD in safety considerations."
+    ],
+    sources: [
+      { label: "PsychonautWiki — 1P-LSD", url: "https://m.psychonautwiki.org/wiki/1P-LSD" },
+      { label: "Erowid — 1P-LSD experiences", url: "https://www.erowid.org/experiences/subs/exp_1P-LSD.shtml" },
+      { label: "PubMed — 1P-LSD potency study", url: "https://pubmed.ncbi.nlm.nih.gov/26456305/" }
+    ]
+  },
+
+  "1cP-LSD": {
+    pubchem: `<a href="https://pubchem.ncbi.nlm.nih.gov/compound/155884675" target="_blank">PubChem CID: 155884675</a>`,
+    class: "Cyclopropionyl prodrug of LSD",
+    dose: "50–200 µg (common), 200–400 µg (strong)",
+    effects: [
+      "Similar to LSD",
+      "Often described as slightly more sedating",
+      "Visuals comparable to LSD",
+      "Some users report smoother headspace"
+    ],
+    interactions: [
+      "MAOIs: dangerous — can intensify effects and risk serotonin syndrome",
+      "SSRIs/SNRIs: can blunt or cancel effects",
+      "Stimulants: increases anxiety + cardiovascular stress",
+      "Alcohol: increases nausea and lowers judgment",
+      "Cannabis: can increase paranoia in higher doses",
+      "Benzodiazepines: can reduce or stop effects (used as a trip-stop)",
+      "Antipsychotics: can cancel effects",
+      "Opioids: sedation + risk of overdose"
+    ],
+    safety: [
+      "Limited clinical data; treat as LSD in safety considerations.",
+      "Avoid mixing with MAOIs and SSRIs."
+    ],
+    warnings: [
+      "Same cardiovascular and vasoconstrictive risks as LSD.",
+      "Limited clinical data — treat as LSD in safety considerations."
+    ],
+    sources: [
+      { label: "PsychonautWiki — 1cP-LSD", url: "https://m.psychonautwiki.org/wiki/1cP-LSD" },
+      { label: "Erowid — 1cP-LSD experiences", url: "https://www.erowid.org/experiences/subs/exp_1cP-LSD.shtml" },
+      { label: "PubMed — 1cP-LSD potency study", url: "https://pubmed.ncbi.nlm.nih.gov/32180350/" }
+    ]
+  },
+
+  "1V-LSD": {
+    pubchem: `<a href="https://pubchem.ncbi.nlm.nih.gov/compound/162368540" target="_blank">PubChem CID: 162368540</a>`,
+    class: "Valeryl prodrug of LSD",
+    dose: "50–200 µg (common), 200–400 µg (strong)",
+    effects: [
+      "Similar to LSD",
+      "Often described as more energetic",
+      "Visuals similar to LSD",
+      "Some users report longer duration"
+    ],
+    interactions: [
+      "MAOIs: dangerous — can intensify effects and risk serotonin syndrome",
+      "SSRIs/SNRIs: can blunt or cancel effects",
+      "Stimulants: increases anxiety + cardiovascular stress",
+      "Alcohol: increases nausea and lowers judgment",
+      "Cannabis: can increase paranoia in higher doses",
+      "Benzodiazepines: can reduce or stop effects (used as a trip-stop)",
+      "Antipsychotics: can cancel effects",
+      "Opioids: sedation + risk of overdose"
+    ],
+    safety: [
+      "Limited clinical data; treat as LSD in safety considerations.",
+      "Avoid mixing with MAOIs and SSRIs."
+    ],
+    warnings: [
+      "Same cardiovascular and vasoconstrictive risks as LSD.",
+      "Limited clinical data — treat as LSD in safety considerations."
+    ],
+    sources: [
+      { label: "PsychonautWiki — 1V-LSD", url: "https://m.psychonautwiki.org/wiki/1V-LSD" },
+      { label: "Erowid — 1V-LSD experiences", url: "https://www.erowid.org/experiences/subs/exp_1VLSD_General.shtml" },
+      { label: "PubMed — 1V-LSD potency study", url: "https://pubmed.ncbi.nlm.nih.gov/34837347/" }
+    ]
+  },
+
+  "AL-LAD": {
+    pubchem: `<a href="https://pubchem.ncbi.nlm.nih.gov/compound/87806640" target="_blank">PubChem CID: 87806640</a>`,
+    class: "Lysergamide analog",
+    dose: "50–150 µg (common), 150–300 µg (strong)",
+    effects: [
+      "Lighter, more visual than LSD for many users",
+      "Less intense mental headspace than LSD",
+      "More “colorful” visuals",
+      "Often described as euphoric and playful"
+    ],
+    interactions: [
+      "MAOIs: dangerous — can intensify effects and risk serotonin syndrome",
+      "SSRIs/SNRIs: can blunt or cancel effects",
+      "Stimulants: increases anxiety + cardiovascular stress",
+      "Alcohol: increases nausea and lowers judgment",
+      "Cannabis: can increase paranoia in higher doses",
+      "Benzodiazepines: can reduce or stop effects (used as a trip-stop)",
+      "Antipsychotics: can cancel effects",
+      "Opioids: sedation + risk of overdose"
+    ],
+    safety: [
+      "Avoid mixing with MAOIs and SSRIs.",
+      "Dose carefully; effects can still be strong."
+    ],
+    warnings: [
+      "Same cardiovascular and vasoconstrictive risks as LSD.",
+      "May increase heart rate and blood pressure."
+    ],
+    sources: [
+      { label: "PsychonautWiki — AL-LAD", url: "https://m.psychonautwiki.org/wiki/AL-LAD" },
+      { label: "Erowid — AL-LAD experiences", url: "https://www.erowid.org/experiences/subs/exp_AL-LAD.shtml" },
+      { label: "PubMed — AL-LAD potency", url: "https://pubmed.ncbi.nlm.nih.gov/27265891/" }
+    ]
+  },
+
+  "ETH-LAD": {
+    pubchem: `<a href="https://pubchem.ncbi.nlm.nih.gov/compound/87806642" target="_blank">PubChem CID: 87806642</a>`,
+    class: "Lysergamide analog",
+    dose: "50–150 µg (common), 150–300 µg (strong)",
+    effects: [
+      "Similar to LSD but often more energetic",
+      "Sharper visuals",
+      "More stimulating",
+      "Often described as clearer and more “heady”"
+    ],
+    interactions: [
+      "MAOIs: dangerous — can intensify effects and risk serotonin syndrome",
+      "SSRIs/SNRIs: can blunt or cancel effects",
+      "Stimulants: increases anxiety + cardiovascular stress",
+      "Alcohol: increases nausea and lowers judgment",
+      "Cannabis: can increase paranoia in higher doses",
+      "Benzodiazepines: can reduce or stop effects (used as a trip-stop)",
+      "Antipsychotics: can cancel effects",
+      "Opioids: sedation + risk of overdose"
+    ],
+    safety: [
+      "Avoid mixing with MAOIs and SSRIs.",
+      "Can cause strong stimulation—watch heart rate."
+    ],
+    warnings: [
+      "Same cardiovascular and vasoconstrictive risks as LSD.",
+      "More stimulating — may raise heart rate and blood pressure."
+    ],
+    sources: [
+      { label: "PsychonautWiki — ETH-LAD", url: "https://m.psychonautwiki.org/wiki/ETH-LAD" },
+      { label: "Erowid — ETH-LAD experiences", url: "https://www.erowid.org/experiences/subs/exp_ETH-LAD.shtml" },
+      { label: "PubMed — ETH-LAD potency", url: "https://pubmed.ncbi.nlm.nih.gov/27265891/" }
+    ]
+  },
+
+  "LSZ": {
+    pubchem: `<a href="https://pubchem.ncbi.nlm.nih.gov/compound/87806641" target="_blank">PubChem CID: 87806641</a>`,
+    class: "Lysergamide analog",
+    dose: "50–150 µg (common), 150–250 µg (strong)",
+    effects: [
+      "Similar to LSD but often shorter acting",
+      "Less intense mental headspace for some users",
+      "Visuals can be strong and crisp",
+      "Often described as “cleaner” than LSD"
+    ],
+    interactions: [
+      "MAOIs: dangerous — can intensify effects and risk serotonin syndrome",
+      "SSRIs/SNRIs: can blunt or cancel effects",
+      "Stimulants: increases anxiety + cardiovascular stress",
+      "Alcohol: increases nausea and lowers judgment",
+      "Cannabis: can increase paranoia in higher doses",
+      "Benzodiazepines: can reduce or stop effects (used as a trip-stop)",
+      "Antipsychotics: can cancel effects",
+      "Opioids: sedation + risk of overdose"
+    ],
+    safety: [
+      "Limited clinical data; treat as LSD in safety considerations.",
+      "Avoid mixing with MAOIs and SSRIs."
+    ],
+    warnings: [
+      "Same cardiovascular and vasoconstrictive risks as LSD.",
+      "Limited clinical data — treat as LSD in safety considerations."
+    ],
+    sources: [
+      { label: "PsychonautWiki — LSZ", url: "https://m.psychonautwiki.org/wiki/LSZ" },
+      { label: "Erowid — LSZ experiences", url: "https://www.erowid.org/experiences/subs/exp_LSZ.shtml" },
+      { label: "PubMed — LSZ potency", url: "https://pubmed.ncbi.nlm.nih.gov/27265891/" }
+    ]
+  },
+
+  "LSA": {
+    pubchem: `<a href="https://pubchem.ncbi.nlm.nih.gov/compound/443884" target="_blank">PubChem CID: 443884</a>`,
+    class: "Naturally occurring ergoline (morning glory / HBWR / ololiuhqui)",
+    dose: "1–3 mg (common), 3–6 mg (strong).<br><br>Seed content varies:<br><strong>Hawaiian Baby Woodrose (Argyreia nervosa)</strong>:<br> ~7–12 mg LSA per seed<br><strong>Morning Glory (Ipomoea tricolor / I. violacea)</strong>:<br> ~0.2–0.5 mg LSA per seed<br><strong>Ololiuhqui (Turbina corymbosa)</strong>:<br> ~2–6 mg LSA per seed<br><strong>Rivea corymbosa</strong>:<br> ~1–4 mg LSA per seed.",
+    effects: [
+      "Visuals (often less vivid than LSD)",
+      "Body load / nausea",
+      "Dreamy or sedating headspace",
+      "Increased introspection"
+    ],
+    interactions: [
+      "MAOIs: dangerous — can intensify effects",
+      "SSRIs/SNRIs: can blunt or cancel effects",
+      "Stimulants: increases anxiety + cardiovascular stress",
+      "Alcohol: increases nausea and dehydration",
+      "Cannabis: can increase nausea/paranoia"
+    ],
+    safety: [
+      "Higher nausea and body load than LSD.",
+      "Avoid mixing with MAOIs or SSRIs."
+    ],
+    warnings: [
+      "Can cause vasoconstriction and increased blood pressure.",
+      "Seed products may be sprayed with fungicides or pesticides; contamination risk is significant.",
+      "People with heart conditions, high blood pressure, or circulatory issues should avoid.",
+      "May worsen anxiety or psychosis in vulnerable individuals."
+    ],
+    sources: [
+      { label: "PsychonautWiki — LSA", url: "https://m.psychonautwiki.org/wiki/LSA" },
+      { label: "Erowid — LSA experiences", url: "https://www.erowid.org/experiences/subs/exp_LSA.shtml" },
+      { label: "PubMed — Hallucinogens & 5-HT₂A review", url: "https://pubmed.ncbi.nlm.nih.gov/28677096/" }
+    ]
+  }
+};
+// ============================
+// STATE
+// ============================
+const state = {
+  mode: 'mushrooms',
+  variance: 'standard',
+  potencyMult: 1,
+  mushroomPotency: { min: 0.6, max: 1.3 },
+  basePotency: { min: 0.6, max: 1.3 },
+  lastEffects: null,
+  lysergamide: 'LSD',
+  lysergMult: 1.0,
+  lysergPubChemCID: '5761',
+  lysergUnit: 'ug',
+  lysergDesc: "Baseline reference compound"
+};
+
+const IMG = {
+  mushrooms: 'https://cdn.shopify.com/s/files/1/0603/6321/1009/files/Tolerance_Factor_20260112_174530_0000.png?v=1768258277',
+  lsd: 'https://cdn.shopify.com/s/files/1/0603/6321/1009/files/Copy_of_Tolerance_Factor_20260113_020804_0000.png?v=1768288134',
+  effectsMushroom: 'https://cdn.shopify.com/s/files/1/0603/6321/1009/files/Copy_of_Copy_of_Tolerance_Factor_20260113_062915_0000_2.png?v=1768303957',
+  effectsLSD: 'https://cdn.shopify.com/s/files/1/0603/6321/1009/files/20260114_002830_0000.png?v=1768368606'
+};
+
+// ============================
+// DOM ELEMENTS
+// ============================
+const el = {
+  calc: document.getElementById('calculatorWrapper'),
+  lastDose: document.getElementById('lastDose'),
+  daysSince: document.getElementById('daysSince'),
+  desiredDose: document.getElementById('desiredDose'),
+  tolFactor: document.getElementById('tolFactor'),
+  adjustedDose: document.getElementById('adjustedDose'),
+  doseChange: document.getElementById('doseChange'),
+  disclaimerBtn: document.getElementById('disclaimerBtn'),
+  disclaimerModal: document.getElementById('disclaimerModal'),
+  closeDisclaimer: document.getElementById('closeDisclaimer'),
+  pill: document.getElementById('pill'),
+  dropdown: document.getElementById('dropdown'),
+  pillValue: document.getElementById('pillValue'),
+  mushroomSelector: document.getElementById('mushroomTypeSelector'),
+  btnDry: document.getElementById('btnDry'),
+  btnWet: document.getElementById('btnWet'),
+  lysergSelector: document.getElementById('lysergamideSelector'),
+  lysergPill: document.getElementById('lysergamidePill'),
+  lysergDropdown: document.getElementById('lysergamideDropdown'),
+  lysergValue: document.getElementById('lysergamideValue'),
+  gramsInput: document.getElementById('gramsInput'),
+  doseOutputs: document.getElementById('doseOutputs'),
+  effectsPanel: document.getElementById('effectsPanel'),
+  effectsTitle: document.getElementById('effectsTitle'),
+  effectsText: document.getElementById('effectsText'),
+  closePanel: document.getElementById('closePanel'),
+  potencyToggle: document.getElementById('potencyToggle'),
+  effectsCalc: document.getElementById('effectsCalculatorWrapper'),
+  potency: document.getElementById('potency'),
+  potencyToggleWrap: document.getElementById('potencyToggleWrapper')
+};
+
+// ============================
+// UTILITY FUNCTIONS
+// ============================
+const sanitize = val => {
+  let s = val.replace(/[^\d.]/g, '');
+  const parts = s.split('.');
+  return parts.length > 2 ? parts[0] + '.' + parts[1] : s;
+};
+
+const parseInput = input => parseFloat(input.value.replace(/[^\d.]/g, '')) || 0;
+
+const getUnit = () => state.mode === 'mushrooms' ? 'g' : state.lysergUnit;
+
+const formatUnit = input => {
+  const val = sanitize(input.value);
+  input.value = val ? val + getUnit() : '';
+};
+
+const resetInputs = () => {
+  el.lastDose.value = '';
+  el.desiredDose.value = '';
+  el.daysSince.value = '';
+};
+
+const getLevelByMg = mg => levels.find(l => mg >= l.min && mg <= l.max) || levels[levels.length - 1];
+
+// ============================
+// DROPDOWN GENERATION
+// ============================
+const generateDropdown = (container, data, itemRenderer) => {
+  container.innerHTML = data.map(itemRenderer).join('');
+};
+
+generateDropdown(el.dropdown, mushroomSpecies, s => `
+  <div class="dropdown-item" data-value="${s.value}" data-min="${s.potencyMin}" data-max="${s.potencyMax}">
+    <span class="species">${s.value}</span>
+    <span class="strain">${s.strain}</span>
+    <span class="potency">${s.potencyMin}–${s.potencyMax}% Psilocybin Content</span>
+  </div>
+`);
+
+generateDropdown(el.lysergDropdown, lysergamides, l => `
+  <div class="dropdown-item"
+  data-name="${l.name}"
+  data-mult="${l.multiplier}"
+data-pubchemcid="${l.PubChemCID}"
+  data-desc="${l.desc}"
+  data-strain="${l.strain}"
+  data-unit="${l.unit}">
+    <span class="species">${l.name}</span>
+    <span class="strain">${l.strain} · Potency ~${Math.round(l.multiplier * 100)}% </span>
+    <span class="potency">${l.PubChemCID ? 'PubChem CID: ' + l.PubChemCID : 'PubChem CID: —'}</span>
+  </div>
+`);
+
+// ============================
+// POTENCY FUNCTIONS
+// ============================
+const updatePotencyMult = () => {
+  state.mushroomPotency.min = state.basePotency.min * state.potencyMult;
+  state.mushroomPotency.max = state.basePotency.max * state.potencyMult;
+  updateOutputs();
+  if (el.effectsPanel.style.display === 'block' && state.lastEffects) updateEffectsPanel();
+};
+
+const getPotencyFactors = () => {
+  if (state.mode === 'lsd') return { Low: 8, Average: 10, High: 12 };
+
+  const { min, max } = state.mushroomPotency;
+  const avg = (min + max) / 2;
+
+  if (state.variance === 'high') {
+    return { Low: min * 10, Average: avg * 10, High: max * 10 };
+  }
+
+  const spread = (max - min) / 2;
+  return {
+    Low: Math.max(min, avg - spread / 2) * 10,
+    Average: avg * 10,
+    High: Math.min(max, avg + spread / 2) * 10
+  };
+};
+
+// ============================
+// TOLERANCE CALCULATOR
+// ============================
+const recalcTolerance = () => {
+  const daysSince = parseFloat(el.daysSince.value) || 0;
+  let desired = parseInput(el.desiredDose);
+  
+  if (state.mode === 'lsd' && state.lysergUnit === 'mg') desired /= 1000;
+
+  const lastDose = parseInput(el.lastDose);
+  let tolFactor = 1;
+
+  if (lastDose > 0) {
+    const PEAK = 2.9, DECAY = 0.25;
+    tolFactor = 1 + (PEAK - 1) * Math.exp(-DECAY * daysSince);
+  }
+
+  let newDose = desired * tolFactor;
+
+  el.tolFactor.textContent = tolFactor.toFixed(2) + 'x';
+
+  if (state.mode === 'lsd' && state.lysergUnit === 'mg') newDose *= 1000;
+
+  const maxDose = state.mode === 'mushrooms' ? 999.99 : (state.lysergUnit === 'mg' ? 999.99 : 9999);
+  const unit = getUnit();
+  const decimals = unit === 'mg' ? 2 : 0;
+
+  if (newDose > maxDose) {
+    el.adjustedDose.textContent = state.mode === 'mushrooms' ? '2 MUSH!!' : 'N/A ' + unit;
+    el.adjustedDose.style.fontSize = '19.5px';
+    el.doseChange.textContent = 'N/A';
+  } else {
+    el.adjustedDose.textContent = newDose.toFixed(decimals) + unit;
+    el.adjustedDose.style.fontSize = '22px';
+    el.doseChange.textContent = (newDose - parseInput(el.desiredDose)).toFixed(decimals) + unit;
+  }
+};
+
+// ============================
+// EFFECTS PANEL
+// ============================
+const updateEffectsPanel = () => {
+  const factors = getPotencyFactors();
+  const grams = parseFloat(el.gramsInput.value.replace(/[^\d.]/g, '')) || 0;
+  const mg = Math.round(grams * factors[state.lastEffects]);
+  const lvl = getLevelByMg(mg);
+
+  el.effectsPanel.style.background = estimateColors[state.lastEffects];
+  el.effectsTitle.textContent = state.mode === 'lsd'
+    ? `${lvl.name} (${state.lastEffects} estimate) — ${state.lysergamide}`
+    : `${lvl.name} (${state.lastEffects} estimate)`;
+
+  const mushroomName = el.pillValue.textContent.replace(/\s+/g, ' ').trim();
+  const { min, max } = state.mushroomPotency;
+  const potencyRange = state.potencyMult === 0.1 
+    ? `${min.toFixed(3)}–${max.toFixed(3)}%` 
+    : `${min.toFixed(2)}–${max.toFixed(2)}%`;
+  const varianceText = state.variance === 'high' ? 'High-variance range' : 'Standard range';
+
+  el.effectsText.innerHTML = `
+    <strong>Mushroom:</strong> ${mushroomName}<br>
+    <strong>Potency:</strong> ${potencyRange} psilocybin<br>
+    <strong>Variance mode:</strong> ${varianceText}<br>
+    <strong>Psilocybin range:</strong> ${lvl.min}–${lvl.max} mg<br>
+    <strong>Typical dried mushroom:</strong> ${lvl.gramRange}<br><br>
+    <strong>Mental:</strong> ${lvl.effects.Mental}<br>
+    <strong>Visual:</strong> ${lvl.effects.Visual}<br>
+    <strong>Function:</strong> ${lvl.effects.Function}
+  `;
+};
+
+// ============================
+// EFFECTS CALCULATOR OUTPUT
+// ============================
+const updateOutputs = () => {
+  el.doseOutputs.innerHTML = '';
+
+  if (state.mode === 'lsd') {
+    let dose = parseFloat(el.gramsInput.value.replace(/[^\d.]/g, '')) || 0;
+    const LD50_UG = 5000000, LD50_MG = 4000;
+
+    if ((state.lysergUnit === 'ug' && dose >= LD50_UG) || (state.lysergUnit === 'mg' && dose >= LD50_MG)) {
+      el.doseOutputs.style.cssText = 'display:flex; flex-direction:column; align-items:center;';
+      el.doseOutputs.style.cssText = 'position:absolute; top:35%; left:0%; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; height:auto; margin-top:0px;';
+
+el.doseOutputs.innerHTML = `
+  <div style="width:100%; max-width:420px; margin:0 auto; text-align:center; padding:10px; box-sizing:border-box; margin-top:-20px; line-height:1.5;">
+    <div class="effects-card-title" style="position:relative; font-weight:700; margin:2px 0;">
+      <span>LD₅₀ — 200 lb mouse</span>
+      <button class="more-btn" data-lysergamide="${state.lysergamide}" data-level="LD50">Learn<br>More</button>
+      <div style="font-size:12px; font-weight:400; margin-top:2px;">
+        You just killed a 200 lb mouse
+      </div>
+    </div>
+    <div class="effects-card-text" style="line-height:1.2; max-width:420px; text-align:center; margin-top:1px;">
+      <strong>Mental:</strong> Dead<br>
+      <strong>Visual:</strong> God<br>
+      <strong>Function:</strong> Nah
+    </div>
+  </div>
+`;
+      return;
+    }
+
+    const effects = lysergamideEffects[state.lysergamide] || lysergamideEffects.LSD;
+    let idx = 0;
+
+    if (state.lysergUnit === 'mg') {
+      if (dose < 0.2) idx = 0;
+      else if (dose <= 0.5) idx = 1;
+      else if (dose <= 1.5) idx = 2;
+      else if (dose <= 3.0) idx = 3;
+      else if (dose <= 4.5) idx = 4;
+      else if (dose <= 6.0) idx = 5;
+      else if (dose <= 8.0) idx = 6;
+      else idx = 7;
+    } else {
+      if (dose < 10) idx = 0;
+      else if (dose <= 25) idx = 1;
+      else if (dose <= 60) idx = 2;
+      else if (dose <= 120) idx = 3;
+      else if (dose <= 200) idx = 4;
+      else if (dose <= 350) idx = 5;
+      else if (dose <= 500) idx = 6;
+      else idx = 7;
+    }
+// ============================
+// EFFECTS LSD CARD
+// ============================
+const eff = effects[idx];
+
+el.doseOutputs.style.cssText =
+  'position:absolute; top:35%; left:0%; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; height:auto; margin-top:0px;';
+
+el.doseOutputs.innerHTML = `
+  <div style="width:100%; display:flex; justify-content:center;">
+    <div style="width:100%; max-width:420px; text-align:center; padding:10px; box-sizing:border-box; margin-top:-20px; line-height:1.5;">
+      <div class="effects-card-title" style="position:relative; font-weight:700; margin:2px 0;">
+        <span>${state.lysergamide} — ${eff.level}</span>
+        <button class="more-btn" data-lysergamide="${state.lysergamide}" data-level="${eff.level}">Learn<br>More</button>
+        <div style="font-size:12px; font-weight:400; margin-top:2px;">${state.lysergDesc}</div>
+      </div>
+      <div class="effects-card-text" style="line-height:1.2; max-width:300px; margin:0 auto; text-align:center; margin-top:1px;">
+        <strong>Mental:</strong> ${eff.mental}<br>
+        <strong>Visual:</strong> ${eff.visual}<br>
+        <strong>Function:</strong> ${eff.function}
+      </div>
+    </div>
+  </div>
+`;
+return;
+}
+
+  
+// ============================
+// EFFECTS MUSH CARD
+// ============================
+  let grams = parseFloat(el.gramsInput.value.replace(/[^\d.]/g, '')) || 0;
+  const factors = getPotencyFactors();
+
+  el.doseOutputs.style.cssText = 'position:absolute; top:35%; left:0%; width:100%; display:flex; justify-content:center; flex-direction:row; align-items:flex-start; gap:0px; height:auto; margin-top:0px;';
+  ['Low', 'Average', 'High'].forEach(label => {
+    const mg = Math.round(grams * factors[label]);
+    const lvl = getLevelByMg(mg);
+
+    let psiloLine = '';
+    if (grams > 0) {
+      const percent = (mg / (grams * 1000)) * 100;
+      const formatted = state.potencyMult === 0.1 ? percent.toFixed(3) : percent.toFixed(1);
+      psiloLine = `<span style="font-size:10px; font-style:italic;">~${formatted}% psilocybin</span>`;
+    }
+
+    const card = document.createElement('div');
+    card.style.cssText = 'flex:0 0 30%; text-align:center; cursor:pointer; padding:12px; border-radius:12px; background:transparent; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:120px; overflow:hidden;';
+    card.innerHTML = `
+      <div style="font-weight:700; font-size:14px; margin-bottom:4px;">${label}</div>
+      <div style="font-size:clamp(10px, 1.1vw, 12px); line-height:1; max-width:100%; overflow-wrap:break-word; text-align:center; margin-bottom:1px;">
+        ${mg} mg ${psiloLine}
+      </div>
+      <div style="font-weight:600; font-size:12px; margin-bottom:4px;">Level ${lvl.level}</div>
+      <div style="font-size:10px; font-style:italic; line-height:1; margin:0;">Tap for effects</div>
+    `;
+
+    card.addEventListener('click', () => {
+      state.lastEffects = label;
+      updateEffectsPanel();
+      el.effectsPanel.style.display = 'block';
+      el.effectsPanel.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    el.doseOutputs.appendChild(card);
+  });
+};
+
+// ============================
+// MODE SWITCHING
+// ============================
+const updateUnits = () => {
+  resetInputs();
+  const isM = state.mode === 'mushrooms';
+  const unit = getUnit();
+
+  el.lastDose.placeholder = isM ? '0g' : '0' + unit;
+  el.desiredDose.placeholder = isM ? '0g' : '0' + unit;
+  el.gramsInput.placeholder = isM ? '0g' : '0' + unit;
+
+  el.mushroomSelector.style.display = isM ? 'block' : 'none';
+  el.lysergSelector.style.display = isM ? 'none' : 'block';
+  el.potency.style.display = isM ? 'block' : 'none';
+  el.potencyToggleWrap.style.display = isM ? 'block' : 'none';
+
+  el.calc.style.background = `url('${isM ? IMG.mushrooms : IMG.lsd}') no-repeat center/contain`;
+  el.effectsCalc.style.background = `url('${isM ? IMG.effectsMushroom : IMG.effectsLSD}') no-repeat center/contain`;
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    const active = btn.dataset.mode === state.mode;
+    btn.style.background = active ? 'var(--primary)' : 'var(--secondary)';
+    btn.style.color = active ? 'var(--secondary)' : 'var(--primary)';
+  });
+};
+
+// ============================
+// EVENT LISTENERS
+// ============================
+
+// Mode buttons
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (state.mode === btn.dataset.mode) return;
+    state.mode = btn.dataset.mode;
+    updateUnits();
+    recalcTolerance();
+    updateOutputs();
+  });
+});
+
+// Wet/Dry toggle
+el.btnDry.addEventListener('click', () => {
+  el.btnDry.classList.add('active');
+  el.btnWet.classList.remove('active');
+  state.potencyMult = 1;
+  updatePotencyMult();
+});
+
+el.btnWet.addEventListener('click', () => {
+  el.btnWet.classList.add('active');
+  el.btnDry.classList.remove('active');
+  state.potencyMult = 0.1;
+  updatePotencyMult();
+});
+
+// Mushroom dropdown
+el.pill.addEventListener('click', e => {
+  e.stopPropagation();
+  el.dropdown.classList.toggle('open');
+});
+
+el.dropdown.addEventListener('click', e => {
+  const item = e.target.closest('.dropdown-item');
+  if (!item) return;
+
+  const text = item.querySelector('.species').textContent.split(' ');
+  el.pillValue.innerHTML = text[0] + '<br>' + text.slice(1).join(' ');
+
+  state.basePotency.min = parseFloat(item.dataset.min);
+  state.basePotency.max = parseFloat(item.dataset.max);
+  state.mushroomPotency.min = state.basePotency.min * state.potencyMult;
+  state.mushroomPotency.max = state.basePotency.max * state.potencyMult;
+
+  el.dropdown.classList.remove('open');
+  updateOutputs();
+});
+
+// Lysergamide dropdown
+el.lysergPill.addEventListener('click', e => {
+  e.stopPropagation();
+  el.lysergDropdown.classList.toggle('open');
+});
+
+el.lysergDropdown.addEventListener('click', e => {
+  const item = e.target.closest('.dropdown-item');
+  if (!item) return;
+
+  state.lysergamide = item.dataset.name;
+  state.lysergMult = parseFloat(item.dataset.mult);
+  state.lysergPubChemCID = item.dataset.pubchemcid;
+  state.lysergUnit = item.dataset.unit || 'ug';
+  state.lysergDesc = item.dataset.desc;
+
+  el.lysergValue.innerHTML = `
+    <span>${state.lysergamide}</span>
+    <span class="strain">${item.querySelector('.strain')?.textContent || ''}</span>
+  `;
+
+  el.lysergDropdown.classList.remove('open');
+  updateUnits();
+  updateOutputs();
+});
+
+document.addEventListener('click', () => {
+  el.dropdown.classList.remove('open');
+  el.lysergDropdown.classList.remove('open');
+});
+
+// Tolerance inputs
+[el.lastDose, el.desiredDose].forEach(input => {
+  input.addEventListener('input', () => {
+    input.value = sanitize(input.value);
+    recalcTolerance();
+  });
+  input.addEventListener('blur', () => formatUnit(input));
+});
+
+el.daysSince.addEventListener('input', recalcTolerance);
+// ============================
+// HARM REDUCT
+// ============================
+
+const daysSinceInput = el.daysSince;
+
+const checkHarmPopup = () => {
+  const days = parseFloat(daysSinceInput.value);
+
+  if (!isNaN(days) && days < 14) {
+    showHarmPopup();
+  } else {
+    hideHarmPopup();
+  }
+};
+
+// Trigger ONLY after user finishes typing
+daysSinceInput.addEventListener('blur', checkHarmPopup);
+daysSinceInput.addEventListener('change', checkHarmPopup);
+
+// Effects inputs
+el.desiredDose.addEventListener('input', () => {
+  const num = sanitize(el.desiredDose.value);
+  el.gramsInput.value = num;
+  updateOutputs();
+});
+
+el.gramsInput.addEventListener('input', () => {
+  el.gramsInput.value = sanitize(el.gramsInput.value);
+  updateOutputs();
+});
+
+el.gramsInput.addEventListener('focus', () => {
+  el.gramsInput.value = sanitize(el.gramsInput.value);
+});
+
+el.gramsInput.addEventListener('blur', () => {
+  const num = sanitize(el.gramsInput.value);
+  el.gramsInput.value = num ? num + getUnit() : '';
+  updateOutputs();
+});
+
+
+// Potency toggle
+el.potencyToggle.addEventListener('click', () => {
+  state.variance = state.variance === 'standard' ? 'high' : 'standard';
+  el.potencyToggle.textContent = state.variance === 'high' ? 'High-variance potency range' : 'Standard potency range';
+  el.potencyToggle.style.background = state.variance === 'high' ? '#C97B4F' : '#fff1e7';
+  el.potencyToggle.style.color = state.variance === 'high' ? '#FFFFFF' : '#000000';
+  updateOutputs();
+});
+
+// Modal
+el.disclaimerBtn.addEventListener('click', () => el.disclaimerModal.style.display = 'flex');
+el.closeDisclaimer.addEventListener('click', () => el.disclaimerModal.style.display = 'none');
+el.disclaimerModal.addEventListener('click', e => {
+  if (e.target === el.disclaimerModal) el.disclaimerModal.style.display = 'none';
+});
+
+// ============================
+// LYSERGAMIDE "LEARN MORE" MODAL
+// ============================
+const lysergModal = document.getElementById('lysergModal');
+const lysergModalTitle = document.getElementById('lysergModalTitle');
+const closeLysergModal = document.getElementById('closeLysergModal');
+const lysergModalContent = document.getElementById('lysergModalContent');
+
+document.body.addEventListener('click', (e) => {
+  const btn = e.target.closest('.more-btn');
+  if (!btn) return;
+
+  const name = btn.dataset.lysergamide || 'Lysergamide';
+  const info = lysergamideInfo[name];
+
+  lysergModalTitle.textContent = name;
+
+  // Build modal content
+if (info) {
+  lysergModalContent.innerHTML = `
+    <div style="padding: 0 16px 16px; box-sizing: border-box; text-align:center;">
+      <div style="font-weight:700; margin-bottom:6px;">Class:</div>
+      <div style="margin-bottom:12px;">${info.class}</div>
+
+      <div style="font-weight:700; margin-bottom:6px;">PubChem CID:</div>
+      <div style="margin-bottom:12px;">${info.pubchem}</div>
+
+      <div style="font-weight:700; margin-bottom:6px;">Common Dose:</div>
+      <div style="margin-bottom:12px;">${info.dose}</div>
+
+      <div style="font-weight:700; margin-bottom:6px;">Effects:</div>
+      <div style="margin-bottom:12px;">
+        ${info.effects.join('<br>').replace(/wanting/gi, '<strong>wanting</strong>')}
+      </div>
+
+      <div style="font-weight:700; margin-bottom:6px;">Interactions:</div>
+      <div style="margin-bottom:12px;">
+        ${info.interactions
+          .map(i => i
+            .replace(/MAOIs/g, '<strong>MAOIs</strong>')
+            .replace(/SSRIs\/SNRIs/g, '<strong>SSRIs/SNRIs</strong>')
+            .replace(/Stimulants/g, '<strong>Stimulants</strong>')
+            .replace(/Alcohol/g, '<strong>Alcohol</strong>')
+            .replace(/Cannabis/g, '<strong>Cannabis</strong>')
+            .replace(/Benzodiazepines/g, '<strong>Benzodiazepines</strong>')
+            .replace(/Antipsychotics/g, '<strong>Antipsychotics</strong>')
+            .replace(/Opioids/g, '<strong>Opioids</strong>')
+          )
+          .join('<br>')}
+      </div>
+
+      <div style="font-weight:700; margin-bottom:6px;">Warnings:</div>
+      <div style="margin-bottom:12px; font-style: italic; font-size: 10px;">
+        ${info.warnings ? info.warnings.join('<br>') : '—'}
+      </div>
+
+      <div style="font-weight:700; margin-bottom:6px;">Sources:</div>
+      <div style="margin-bottom:12px;">
+        ${info.sources.map(s => `<a style="font-weight:700;" href="${s.url}" target="_blank" rel="noopener noreferrer">${s.label}</a>`).join('<br>')}
+      </div>
+    </div>
+  `;
+} else {
+  lysergModalContent.innerHTML = `
+    <div style="padding: 0 16px 16px; box-sizing: border-box; text-align:center;">
+      <div style="font-weight:700; margin-bottom:6px;">No data available</div>
+      <div>Try another compound.</div>
+    </div>
+  `;
+}
+
+lysergModal.style.display = 'flex';
+});
+
+closeLysergModal.addEventListener('click', () => {
+  lysergModal.style.display = 'none';
+});
+
+lysergModal.addEventListener('click', (e) => {
+  if (e.target === lysergModal) lysergModal.style.display = 'none';
+});
+// Close panel
+el.closePanel.addEventListener('click', () => el.effectsPanel.style.display = 'none');
+
+// ============================
+// INIT
+// ============================
+window.addEventListener('load', () => {
+  updateUnits();
+  recalcTolerance();
+  updateOutputs();
+});
+
+</script>
+
+</html>
