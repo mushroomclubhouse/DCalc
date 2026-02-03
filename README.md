@@ -1,2 +1,1 @@
-# DCalc
-Calculator
+discord strain bot
