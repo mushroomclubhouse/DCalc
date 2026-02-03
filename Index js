@@ -1,0 +1,71 @@
+import { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import cheerio from "cheerio";
+
+const TOKEN = "MTQ2ODMzNjI0MTk5MjAwNzk4OQ.GHUitq.rgxHvc0JGOR0EgpLfDaXx8vvZb-1f5xbl7d5l8";
+const CLIENT_ID = "1468336241992007989";
+
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds]
+});
+
+const command = new SlashCommandBuilder()
+  .setName("strain")
+  .setDescription("Look up a mushroom strain")
+  .addStringOption(option =>
+    option.setName("name")
+      .setDescription("Strain name")
+      .setRequired(true)
+  );
+
+const rest = new REST({ version: "10" }).setToken(TOKEN);
+
+(async () => {
+  await rest.put(
+    Routes.applicationCommands(CLIENT_ID),
+    { body: [command.toJSON()] }
+  );
+  console.log("✅ Slash command registered");
+})();
+
+client.on("interactionCreate", async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+  if (interaction.commandName !== "strain") return;
+
+  const name = interaction.options.getString("name");
+  await interaction.deferReply();
+
+  const slug = name.toLowerCase().trim().replace(/\s+/g, "-");
+  const url = `https://mycopedia.online/${slug}/`;
+
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0" }
+    });
+
+    if (!response.ok) throw new Error();
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    const description =
+      $("meta[name='description']").attr("content") ||
+      $("p").first().text() ||
+      "No description found.";
+
+    const image = $("img").first().attr("src");
+
+    const embed = new EmbedBuilder()
+      .setTitle(name)
+      .setDescription(description)
+      .setColor(0x2ecc71);
+
+    if (image) embed.setImage(image);
+
+    await interaction.editReply({ embeds: [embed] });
+
+  } catch {
+    await interaction.editReply("❌ Strain not found.");
+  }
+});
+
+client.login(TOKEN);
