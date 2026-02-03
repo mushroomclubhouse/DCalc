@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "cheerio": "^1.0.0"
+  }
+}
